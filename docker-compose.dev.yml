@@ -1,0 +1,124 @@
+# NextGenRail Development Docker Compose
+# Optimized for local development with hot reload and debugging
+
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb-dev:
+    image: mongo:7.0
+    container_name: nextgenrail-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: devpassword
+      MONGO_INITDB_DATABASE: nextgenrail_dev
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+      - ./infra/mongodb/init-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - nextgenrail-dev-network
+
+  # MongoDB Express (Database Admin UI)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: nextgenrail-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: devpassword
+      ME_CONFIG_MONGODB_URL: mongodb://admin:devpassword@mongodb-dev:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+    networks:
+      - nextgenrail-dev-network
+    depends_on:
+      - mongodb-dev
+
+  # Redis for caching (development)
+  redis-dev:
+    image: redis:7-alpine
+    container_name: nextgenrail-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - nextgenrail-dev-network
+    command: redis-server --appendonly yes
+
+  # Development API (with hot reload)
+  nextgenrail-api-dev:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.dev
+    container_name: nextgenrail-api-dev
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATA_MONGODB_URI: mongodb://admin:devpassword@mongodb-dev:27017/nextgenrail_dev?authSource=admin
+      JWT_SECRET: dev-secret-key-change-this-in-production-123456789012345678901234567890
+      JWT_EXPIRATION: 86400000
+      JWT_REFRESH_EXPIRATION: 604800000
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      APP_CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:5173"
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+      SPRING_DEVTOOLS_LIVERELOAD_ENABLED: "true"
+      LOGGING_LEVEL_COM_NEXTGENRAIL: DEBUG
+    ports:
+      - "8080:8080"
+      - "35729:35729" # LiveReload port
+    volumes:
+      - ./apps/api/src:/app/src
+      - ./apps/api/target:/app/target
+      - api_dev_logs:/app/logs
+    networks:
+      - nextgenrail-dev-network
+    depends_on:
+      - mongodb-dev
+
+  # Development Web (Vite dev server)
+  nextgenrail-web-dev:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile.dev
+    container_name: nextgenrail-web-dev
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080/api
+      VITE_WS_URL: ws://localhost:8080/api/ws
+      VITE_DEV_MODE: "true"
+    ports:
+      - "3000:3000"
+      - "24678:24678" # Vite HMR port
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+    networks:
+      - nextgenrail-dev-network
+    depends_on:
+      - nextgenrail-api-dev
+
+networks:
+  nextgenrail-dev-network:
+    driver: bridge
+    name: nextgenrail-dev-network
+
+volumes:
+  mongodb_dev_data:
+    driver: local
+    name: nextgenrail-mongodb-dev-data
+  redis_dev_data:
+    driver: local
+    name: nextgenrail-redis-dev-data
+  api_dev_logs:
+    driver: local
+    name: nextgenrail-api-dev-logs
