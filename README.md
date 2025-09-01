@@ -1,238 +1,205 @@
-# 🚆 NextGenRail - Production-Grade IRCTC Clone
+# 🚆 IRCTC-Clone-App - Next Generation Railway Booking Platform
 
-A comprehensive railway booking system built with modern technologies, featuring real-time seat availability, secure JWT authentication, and a polished Material UI interface.
+A modern, production-grade railway booking web application that surpasses traditional IRCTC in UI/UX and reliability. Built with React 18.3.1, Spring Boot 3.4.8, and MongoDB, deployed on Render.com.
 
-## 🎯 Project Status
+## 🎯 Overview
 
-✅ **FULLY OPERATIONAL** - All components working and tested
+IRCTC-Clone-App is a complete railway booking system featuring:
 
-| Component | Status | Description |
-|-----------|--------|-------------|
-| 🏗️ **Backend API** | ✅ **Working** | Spring Boot application compiles, runs, and connects to MongoDB |
-| 🎨 **Frontend** | ✅ **Working** | React application builds and serves successfully |
-| 🗄️ **Database** | ✅ **Seeded** | MongoDB Atlas connected with initial data (8 stations, 1 train) |
-| 🔐 **Authentication** | ✅ **Implemented** | JWT-based auth with OTP login flow |
-| 📚 **API Docs** | ✅ **Available** | Comprehensive API documentation generated |
-| 🧪 **Tests** | ✅ **Created** | Unit tests for services and controllers |
-| 🐳 **Docker** | ✅ **Ready** | Production-ready containerization |
-
-**MongoDB Connection**: `mongodb+srv://bhumika-aga:test@movie.elou1o4.mongodb.net/nextgenrail`
-
-## ✨ Features
-
-### 🎫 Booking & Reservations
-
-- **Real-time train search** with fuzzy station matching
-- **Interactive seat map** with visual berth selection
-- **Multi-quota support**: General, Tatkal, Ladies, Senior Citizen
-- **Waitlist management** with AI-powered confirmation prediction
-- **PNR status tracking** with live updates via WebSockets
-
-### 🔐 Security & Authentication  
-
-- **OTP-based login** with email verification
-- **JWT authentication** with refresh token rotation
-- **Mock Aadhaar KYC** integration for user verification
-- **CSRF protection** and secure session management
-
-### 📱 User Experience
-
-- **Material UI** with IRCTC-inspired theme
-- **Progressive Web App** support
-- **Dark mode** toggle
-- **Responsive design** for mobile and desktop
-- **Accessibility** compliance with ARIA standards
-
-### ⚡ Performance & Reliability
-
-- **Caching layer** with Caffeine for optimal response times
-- **WebSocket connections** for real-time updates
-- **Async event processing** for notifications
-- **Comprehensive audit logging**
+- 🔍 **Smart Search** with typeahead station search
+- 🗺️ **Interactive Seat Maps** with real-time availability
+- 💳 **Seamless Booking Flow** with fare breakdown
+- 📱 **Mobile-First Design** with responsive Material UI
+- ⚡ **Real-time Updates** via WebSockets
+- 🎫 **PNR Status & Management** with cancellation support
+- 🔮 **Waitlist Prediction** with AI-powered insights
 
 ## 🏗️ Architecture
 
 ### Monorepo Structure
 
 ```txt
-/nextgenrail
+IRCTC-Clone-App/
 ├── apps/
-│   ├── web/          # React 18.3.1 + TypeScript + Material UI
-│   └── api/          # Spring Boot 3.4.9 + MongoDB + JWT
-├── infra/            # Docker configs, deployment scripts
-├── docker-compose.yml
-└── package.json      # Workspace management
+│   ├── web/          # React 18.3.1 + TypeScript + MUI
+│   └── api/          # Spring Boot 3.4.8 + MongoDB + JWT
+├── infra/
+│   ├── mongodb/      # Database initialization scripts
+│   └── render/       # Render.com deployment configs
+├── docs/             # Documentation
+└── docker-compose.yml
 ```
 
 ### Tech Stack
 
-- **Frontend**: React 18.3.1, TypeScript, Material UI, React Router v6, Vite
-- **Backend**: Spring Boot 3.4.9, MongoDB, Spring Security, JWT, Maven  
-- **Database**: MongoDB Atlas (Cloud), Local MongoDB support
-- **DevOps**: Docker, Docker Compose, Render deployment
-- **Testing**: JUnit 5, Mockito, Vitest, React Testing Library
+Frontend
 
-## 🚀 Quick Start
+- React 18.3.1 with TypeScript 4.9.5
+- Material-UI (MUI) 6.1.6 for components
+- React Router 6.30.1 for routing
+- React Hook Form 7.62.0 for forms
+- Axios 1.11.0 with interceptors
+
+Backend
+
+- Java 17 with Spring Boot 3.4.8
+- Spring Security 6.2.9 with JWT authentication
+- Spring Data MongoDB 3.4.8
+- MongoDB Atlas (Free Tier)
+- WebSocket support for real-time updates
+- Swagger/OpenAPI documentation
+
+DevOps
+
+- Docker multi-stage builds
+- Render.com deployment
+- MongoDB Atlas integration
+- Environment-based configuration
+
+## ⚡ Quick Start
 
 ### Prerequisites
 
-- Node.js 18+
-- Java 17+
 - Docker & Docker Compose
-- MongoDB (or use Docker setup)
+- Node.js 18+ (for local development)
+- Java 17+ (for local development)
 
-### Local Development
+### Run Locally
 
-1. **Clone the repository**
+1. **Clone & Environment Setup**
 
    ```bash
    git clone <repository-url>
-   cd nextgenrail
+   cd IRCTC-Clone-App
+   cp .env.example .env
+   # Edit .env with your MongoDB URI and JWT secrets
    ```
 
-2. **Start with Docker (Recommended)**
+2. **Start with Docker**
 
    ```bash
-   npm run docker:up
+   docker-compose up --build
    ```
 
-   This starts:
-   - Frontend at <http://localhost:3000>
-   - Backend API at <http://localhost:8080>  
-   - MongoDB at localhost:27017
+3. **Access Applications**
+   - Frontend: <http://localhost:5173>
+   - Backend API: <http://localhost:8080>
+   - Swagger UI: <http://localhost:8080/swagger-ui.html>
 
-3. **Or start manually**
+### Manual Development
+
+1. **Start Backend**
 
    ```bash
-   # Terminal 1: Start backend API
    cd apps/api
-   mvn spring-boot:run
-   
-   # Terminal 2: Start frontend
+   ./mvnw spring-boot:run
+   ```
+
+2. **Start Frontend**
+
+   ```bash
    cd apps/web
    npm install
    npm run dev
    ```
 
-4. **Seed database with sample data**
+## 🚀 Deployment
 
-   ```bash
-   npm run seed:db
-   ```
+### Render.com Deployment
 
-### Environment Variables
+1. **Fork Repository** on GitHub
+2. **Connect to Render** and create new services
+3. **Configure Environment Variables** (see docs/DEPLOY_RENDER.md)
+4. **Deploy** using the provided render.yaml
 
-Create these files:
+See [DEPLOY_RENDER.md](docs/DEPLOY_RENDER.md) for detailed deployment instructions.
 
-- `apps/api/src/main/resources/application-dev.yml`
-- `apps/web/.env.local`
+## 📚 Documentation
 
-See `/infra/env-templates/` for examples.
+- [API Contract](docs/API_CONTRACT.md) - Complete API reference
+- [Data Model](docs/DATA_MODEL.md) - MongoDB collections and schemas
+- [Local Development](docs/RUNLOCAL.md) - Development environment setup
+- [Render Deployment](docs/DEPLOY_RENDER.md) - Production deployment guide
 
-## 📚 API Documentation
+## 🔧 Environment Variables
 
-Once running, visit:
-
-- **Swagger UI**: <http://localhost:8080/api/swagger-ui.html>
-- **API Docs**: <http://localhost:8080/api/api-docs>
-
-### Key Endpoints
-
-```txt
-POST /api/auth/otp-login       # Email OTP authentication
-POST /api/auth/verify-otp      # Verify OTP and get tokens
-GET  /api/trains/search        # Search trains between stations
-GET  /api/availability         # Check seat availability
-POST /api/bookings             # Create new booking
-GET  /api/bookings/{pnr}       # PNR status inquiry
-PUT  /api/bookings/{pnr}/cancel # Cancel booking
-```
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `MONGODB_URI` | MongoDB connection string | - | ✅ |
+| `JWT_SECRET` | JWT signing secret | - | ✅ |
+| `JWT_REFRESH_SECRET` | JWT refresh token secret | - | ✅ |
+| `CORS_ALLOWED_ORIGINS` | Frontend URL for CORS | <http://localhost:5173> | ✅ |
+| `SERVER_PORT` | Backend server port | 8080 | ❌ |
+| `REACT_APP_API_BASE_URL` | API base URL for frontend | <http://localhost:8080> | ✅ |
 
 ## 🧪 Testing
 
 ```bash
-# Run all tests
+# Backend tests
+cd apps/api
+./mvnw test
+
+# Frontend tests  
+cd apps/web
 npm test
-
-# Backend tests only
-npm run test:api
-
-# Frontend tests only  
-npm run test:web
 ```
 
-## 🐳 Docker Deployment
+## 📱 Features
 
-### Build images
+### Core Booking Flow
 
-```bash
-npm run docker:build
-```
+1. **Search Trains** - Enter source, destination, and date
+2. **View Results** - Browse available trains with real-time availability
+3. **Select Seats** - Interactive seat map with berth preferences
+4. **Enter Details** - Passenger information and contact details
+5. **Payment** - Dummy payment gateway simulation
+6. **Confirmation** - PNR generation and ticket details
 
-### Production deployment
+### Advanced Features
 
-```bash
-docker-compose -f docker-compose.prod.yml up -d
-```
+- **Multi-City Search** - Book complex journeys
+- **Tatkal Booking** - Express booking with higher fares
+- **Waitlist Management** - AI-powered confirmation prediction
+- **Quota Selection** - Ladies, Senior Citizen, General quotas
+- **Cancellation & Refunds** - Rule-based refund calculations
+- **Real-time Updates** - Live availability via WebSockets
 
-## ☁️ Render Deployment
+## 🔐 Security
 
-### Backend (Web Service)
+- Anonymous JWT sessions (no user registration required)
+- Secure HttpOnly cookies for refresh tokens
+- CORS protection for cross-origin requests
+- Input validation and sanitization
+- Rate limiting for API endpoints
 
-- **Build Command**: `cd apps/api && ./mvnw clean package`
-- **Start Command**: `cd apps/api && java -jar target/nextgenrail-api-1.0.0.jar`
-- **Environment**: Java 17
+## 🎨 UI/UX Improvements over IRCTC
 
-### Frontend (Static Site)  
-
-- **Build Command**: `cd apps/web && npm install && npm run build`
-- **Publish Directory**: `apps/web/dist`
-
-### Database
-
-- MongoDB Atlas (recommended for production)
-- Or Render PostgreSQL with document storage patterns
-
-See `/infra/render/` for detailed deployment configs.
-
-## 📊 Database Schema
-
-### Collections
-
-- **users** - User profiles with encrypted Aadhaar
-- **trains** - Train schedules and route information  
-- **bookings** - Reservation records with seat allocation
-- **notifications** - Booking updates and alerts
-- **audit_logs** - Security and transaction logging
-
-## 🔧 Development Scripts
-
-```bash
-npm run dev          # Start both frontend and backend
-npm run build        # Build for production
-npm run docker:up    # Start with Docker Compose
-npm run seed:db      # Populate with sample data
-npm test            # Run test suites
-```
+- **Modern Material Design** with consistent theming
+- **Mobile-First Responsive** layout
+- **Intuitive Navigation** with clear user flows
+- **Real-time Feedback** with loading states and animations
+- **Smart Autocomplete** for station search
+- **Visual Seat Maps** for better seat selection
+- **Clear Fare Breakdown** with transparent pricing
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📝 License
+## 📄 License
 
-MIT License - see LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🛟 Support
 
-- **Documentation**: `/docs` folder
 - **Issues**: GitHub Issues
-- **Email**: <support@nextgenrail.com>
+- **Documentation**: `/docs` folder
+- **API Reference**: `/swagger-ui.html` when running
 
 ---
 
-Built with ❤️ by the NextGenRail Team
+Built with ❤️ for better railway booking experiences

@@ -1,12 +1,12 @@
-import { apiClient } from './api'
-import { 
-  TrainSearchRequest, 
-  TrainSearchResult, 
-  Station, 
-  BookingRequest, 
-  Booking, 
-  ClassAvailability 
+import {
+  Booking,
+  BookingRequest,
+  ClassAvailability,
+  Station,
+  TrainSearchRequest,
+  TrainSearchResult
 } from '@/types/train'
+import { apiClient } from './api'
 
 /**
  * Train service
@@ -22,23 +22,23 @@ export const trainService = {
       destination: request.destinationStation,
       date: request.travelDate
     })
-    
+
     if (request.classType) {
       params.append('class', request.classType)
     }
-    
+
     if (request.quota) {
       params.append('quota', request.quota)
     }
-    
+
     return apiClient.get<TrainSearchResult[]>(`/trains/search?${params.toString()}`)
   },
 
   /**
    * Get seat availability for a specific train
    */
-  async getAvailability(trainId: string, sourceStation: string, destinationStation: string, 
-                       travelDate: string, classType: string): Promise<ClassAvailability[]> {
+  async getAvailability(trainId: string, sourceStation: string, destinationStation: string,
+    travelDate: string, classType: string): Promise<ClassAvailability[]> {
     const params = new URLSearchParams({
       trainId,
       source: sourceStation,
@@ -46,7 +46,7 @@ export const trainService = {
       date: travelDate,
       class: classType
     })
-    
+
     return apiClient.get<ClassAvailability[]>(`/trains/availability?${params.toString()}`)
   },
 
@@ -97,7 +97,7 @@ export const trainService = {
    * Get fare details for a journey
    */
   async getFareDetails(trainId: string, sourceStation: string, destinationStation: string,
-                      classType: string, passengerCount: number): Promise<any> {
+    classType: string, passengerCount: number): Promise<any> {
     const params = new URLSearchParams({
       trainId,
       source: sourceStation,
@@ -105,7 +105,7 @@ export const trainService = {
       class: classType,
       passengers: passengerCount.toString()
     })
-    
+
     return apiClient.get<any>(`/trains/fare?${params.toString()}`)
   },
 

@@ -1,0 +1,31 @@
+# Test Environment Configuration
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/nextgenrail_test
+  
+  # Disable email sending in tests
+  mail:
+    host: localhost
+    port: 587
+    username: test@example.com
+    password: testpassword
+
+# Test configuration
+jwt:
+  secret: test-secret-key-for-junit-tests-123456789012345678901234567890
+  expiration: 3600000 # 1 hour for tests
+  refresh-expiration: 7200000 # 2 hours for tests
+
+# Faster OTP expiration for tests
+app:
+  otp:
+    expiration: 60000 # 1 minute
+    length: 6
+
+# Minimal logging in tests
+logging:
+  level:
+    com.nextgenrail: WARN
+    org.springframework: WARN

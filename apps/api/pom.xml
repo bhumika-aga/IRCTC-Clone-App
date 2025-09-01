@@ -10,11 +10,11 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     
-    <groupId>com.nextgenrail</groupId>
-    <artifactId>nextgenrail-api</artifactId>
+    <groupId>com.irctcplus</groupId>
+    <artifactId>irctc-plus-api</artifactId>
     <version>1.0.0</version>
-    <name>NextGenRail API</name>
-    <description>Production-grade IRCTC clone backend with Spring Boot, MongoDB, and JWT authentication</description>
+    <name>IRCTC-Plus API</name>
+    <description>IRCTC-Plus Railway Booking API with Spring Boot, MongoDB, and JWT authentication</description>
     
     <properties>
         <java.version>17</java.version>

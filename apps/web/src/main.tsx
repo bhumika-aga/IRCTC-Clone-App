@@ -1,13 +1,16 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
 
 // Import global styles
-import '@/styles/global.css'
+import "@/styles/global.css";
+
+// React DevTools recommendation - Install browser extension for better debugging:
+// https://reactjs.org/link/react-devtools
 
 // Enable React strict mode for development
-ReactDOM.createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
-)
+);

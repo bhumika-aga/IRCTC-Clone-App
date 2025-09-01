@@ -23,69 +23,69 @@ import java.util.function.Function;
  */
 @Component
 public class JwtTokenUtil {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
-
+    
     @Value("${jwt.secret}")
     private String secret;
-
+    
     @Value("${jwt.expiration}")
     private Long expiration;
-
+    
     @Value("${jwt.refresh-expiration}")
     private Long refreshExpiration;
-
+    
     private SecretKey getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
+    
     // Retrieve username from jwt token
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
-
+    
     // Retrieve expiration date from jwt token
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }
-
+    
     // Retrieve any claim from token
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
-
-
+    
+    
     // Generate token for user
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-
+        
         // Add custom claims
         claims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
-
+        
         return createToken(claims, userDetails.getUsername(), expiration);
     }
-
+    
     // Generate refresh token
     public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("type", "refresh");
-
+        
         return createToken(claims, userDetails.getUsername(), refreshExpiration);
     }
-
+    
     // Create token with claims
     private String createToken(Map<String, Object> claims, String subject, Long tokenExpiration) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
+                   .setClaims(claims)
+                   .setSubject(subject)
+                   .setIssuedAt(new Date(System.currentTimeMillis()))
+                   .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
+                   .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                   .compact();
     }
-
+    
     // Validate token
     public Boolean validateToken(String token, UserDetails userDetails) {
         try {
@@ -96,7 +96,7 @@ public class JwtTokenUtil {
             return false;
         }
     }
-
+    
     // Check if token is refresh token
     public Boolean isRefreshToken(String token) {
         try {
@@ -106,7 +106,7 @@ public class JwtTokenUtil {
             return false;
         }
     }
-
+    
     // Check if token has expired
     public Boolean isTokenExpired(String token) {
         try {
@@ -116,31 +116,31 @@ public class JwtTokenUtil {
             return true;
         }
     }
-
+    
     // Check if token can be refreshed
     public Boolean canTokenBeRefreshed(String token) {
         return !isTokenExpired(token);
     }
-
+    
     // Get all claims from token (public method for testing)
     public Claims getAllClaimsFromToken(String token) {
         try {
             return Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                       .setSigningKey(getSigningKey())
+                       .build()
+                       .parseClaimsJws(token)
+                       .getBody();
         } catch (Exception e) {
             logger.error("Error parsing JWT token: {}", e.getMessage());
             throw new RuntimeException("Invalid JWT token", e);
         }
     }
-
+    
     // Get token expiration time in milliseconds
     public Long getTokenExpirationTime() {
         return expiration;
     }
-
+    
     // Get refresh token expiration time in milliseconds
     public Long getRefreshTokenExpirationTime() {
         return refreshExpiration;

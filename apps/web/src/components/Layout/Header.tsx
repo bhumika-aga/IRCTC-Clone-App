@@ -1,78 +1,77 @@
-import React, { useState } from 'react'
+import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import {
+  Brightness4,
+  Brightness7,
+  ConfirmationNumber,
+  Home,
+  Login,
+  Logout,
+  Menu as MenuIcon,
+  Person,
+  Search,
+} from "@mui/icons-material";
 import {
   AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
   Avatar,
   Box,
-  useMediaQuery,
-  useTheme as useMuiTheme,
+  Button,
+  Divider,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider
-} from '@mui/material'
-import {
-  Menu as MenuIcon,
-  AccountCircle,
-  Brightness4,
-  Brightness7,
-  Login,
-  Logout,
-  Home,
-  Search,
-  ConfirmationNumber,
-  Person
-} from '@mui/icons-material'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { useAuth } from '@/contexts/AuthContext'
-import { useTheme } from '@/contexts/ThemeContext'
+  Menu,
+  MenuItem,
+  Toolbar,
+  Typography,
+  useMediaQuery,
+  useTheme as useMuiTheme,
+} from "@mui/material";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export function Header() {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const muiTheme = useMuiTheme()
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'))
-  
-  const { user, isAuthenticated, logout } = useAuth()
-  const { isDarkMode, toggleTheme } = useTheme()
-  
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const muiTheme = useMuiTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down("md"));
+
+  const { user, isAuthenticated, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
+    setAnchorEl(event.currentTarget);
+  };
 
   const handleMenuClose = () => {
-    setAnchorEl(null)
-  }
+    setAnchorEl(null);
+  };
 
   const handleLogout = async () => {
-    handleMenuClose()
-    await logout()
-    navigate('/')
-  }
+    handleMenuClose();
+    await logout();
+    navigate("/");
+  };
 
   const handleLogin = () => {
-    navigate('/login')
-  }
+    navigate("/login");
+  };
 
   const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen)
-  }
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
   const menuItems = [
-    { text: 'Home', icon: <Home />, path: '/' },
-    { text: 'Book Ticket', icon: <ConfirmationNumber />, path: '/search' },
-    { text: 'PNR Status', icon: <Search />, path: '/pnr-status' }
-  ]
+    { text: "Home", icon: <Home />, path: "/" },
+    { text: "Book Ticket", icon: <ConfirmationNumber />, path: "/search" },
+    { text: "PNR Status", icon: <Search />, path: "/pnr-status" },
+  ];
 
   const MobileDrawer = () => (
     <Drawer
@@ -80,7 +79,7 @@ export function Header() {
       open={mobileMenuOpen}
       onClose={toggleMobileMenu}
       PaperProps={{
-        sx: { width: 250 }
+        sx: { width: 250 },
       }}
     >
       <Box sx={{ p: 2 }}>
@@ -91,18 +90,21 @@ export function Header() {
       <Divider />
       <List>
         {menuItems.map((item) => (
-          <ListItem 
+          <ListItem
             key={item.text}
             onClick={() => {
-              navigate(item.path)
-              toggleMobileMenu()
+              navigate(item.path);
+              toggleMobileMenu();
             }}
             sx={{
-              cursor: 'pointer',
-              backgroundColor: location.pathname === item.path ? 'action.selected' : 'transparent',
-              '&:hover': {
-                backgroundColor: 'action.hover'
-              }
+              cursor: "pointer",
+              backgroundColor:
+                location.pathname === item.path
+                  ? "action.selected"
+                  : "transparent",
+              "&:hover": {
+                backgroundColor: "action.hover",
+              },
             }}
           >
             <ListItemIcon>{item.icon}</ListItemIcon>
@@ -112,32 +114,56 @@ export function Header() {
       </List>
       <Divider />
       <List>
-        <ListItem onClick={toggleTheme} sx={{ cursor: 'pointer' }}>
+        <ListItem onClick={toggleTheme} sx={{ cursor: "pointer" }}>
           <ListItemIcon>
             {isDarkMode ? <Brightness7 /> : <Brightness4 />}
           </ListItemIcon>
-          <ListItemText primary={isDarkMode ? 'Light Mode' : 'Dark Mode'} />
+          <ListItemText primary={isDarkMode ? "Light Mode" : "Dark Mode"} />
         </ListItem>
         {isAuthenticated ? (
           <>
-            <ListItem onClick={() => { navigate('/profile'); toggleMobileMenu(); }} sx={{ cursor: 'pointer' }}>
-              <ListItemIcon><Person /></ListItemIcon>
+            <ListItem
+              onClick={() => {
+                navigate("/profile");
+                toggleMobileMenu();
+              }}
+              sx={{ cursor: "pointer" }}
+            >
+              <ListItemIcon>
+                <Person />
+              </ListItemIcon>
               <ListItemText primary="Profile" />
             </ListItem>
-            <ListItem onClick={() => { handleLogout(); toggleMobileMenu(); }} sx={{ cursor: 'pointer' }}>
-              <ListItemIcon><Logout /></ListItemIcon>
+            <ListItem
+              onClick={() => {
+                handleLogout();
+                toggleMobileMenu();
+              }}
+              sx={{ cursor: "pointer" }}
+            >
+              <ListItemIcon>
+                <Logout />
+              </ListItemIcon>
               <ListItemText primary="Logout" />
             </ListItem>
           </>
         ) : (
-          <ListItem onClick={() => { handleLogin(); toggleMobileMenu(); }} sx={{ cursor: 'pointer' }}>
-            <ListItemIcon><Login /></ListItemIcon>
+          <ListItem
+            onClick={() => {
+              handleLogin();
+              toggleMobileMenu();
+            }}
+            sx={{ cursor: "pointer" }}
+          >
+            <ListItemIcon>
+              <Login />
+            </ListItemIcon>
             <ListItemText primary="Login" />
           </ListItem>
         )}
       </List>
     </Drawer>
-  )
+  );
 
   return (
     <>
@@ -154,23 +180,23 @@ export function Header() {
               <MenuIcon />
             </IconButton>
           )}
-          
+
           <Typography
             variant="h6"
             component="div"
             sx={{
               flexGrow: isMobile ? 1 : 0,
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              mr: 4
+              fontWeight: "bold",
+              cursor: "pointer",
+              mr: 4,
             }}
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
           >
             🚆 NextGenRail
           </Typography>
 
           {!isMobile && (
-            <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
+            <Box sx={{ flexGrow: 1, display: "flex", gap: 2 }}>
               {menuItems.map((item) => (
                 <Button
                   key={item.text}
@@ -178,10 +204,13 @@ export function Header() {
                   startIcon={item.icon}
                   onClick={() => navigate(item.path)}
                   sx={{
-                    backgroundColor: location.pathname === item.path ? 'rgba(255,255,255,0.1)' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255,255,255,0.2)'
-                    }
+                    backgroundColor:
+                      location.pathname === item.path
+                        ? "rgba(255,255,255,0.1)"
+                        : "transparent",
+                    "&:hover": {
+                      backgroundColor: "rgba(255,255,255,0.2)",
+                    },
                   }}
                 >
                   {item.text}
@@ -190,13 +219,13 @@ export function Header() {
             </Box>
           )}
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             {!isMobile && (
               <IconButton color="inherit" onClick={toggleTheme}>
                 {isDarkMode ? <Brightness7 /> : <Brightness4 />}
               </IconButton>
             )}
-            
+
             {isAuthenticated ? (
               <>
                 <IconButton
@@ -211,8 +240,8 @@ export function Header() {
                     sx={{
                       width: 32,
                       height: 32,
-                      bgcolor: 'secondary.main',
-                      fontSize: '0.875rem'
+                      bgcolor: "secondary.main",
+                      fontSize: "0.875rem",
                     }}
                   >
                     {user?.firstName?.charAt(0)?.toUpperCase()}
@@ -221,21 +250,31 @@ export function Header() {
                 <Menu
                   anchorEl={anchorEl}
                   anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right',
+                    vertical: "bottom",
+                    horizontal: "right",
                   }}
                   keepMounted
                   transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
+                    vertical: "top",
+                    horizontal: "right",
                   }}
                   open={Boolean(anchorEl)}
                   onClose={handleMenuClose}
                 >
-                  <MenuItem onClick={() => { handleMenuClose(); navigate('/profile'); }}>
+                  <MenuItem
+                    onClick={() => {
+                      handleMenuClose();
+                      navigate("/profile");
+                    }}
+                  >
                     <Person sx={{ mr: 1 }} /> Profile
                   </MenuItem>
-                  <MenuItem onClick={() => { handleMenuClose(); navigate('/my-bookings'); }}>
+                  <MenuItem
+                    onClick={() => {
+                      handleMenuClose();
+                      navigate("/my-bookings");
+                    }}
+                  >
                     <ConfirmationNumber sx={{ mr: 1 }} /> My Bookings
                   </MenuItem>
                   <MenuItem onClick={handleLogout}>
@@ -249,11 +288,11 @@ export function Header() {
                 startIcon={<Login />}
                 onClick={handleLogin}
                 sx={{
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    borderColor: 'rgba(255,255,255,0.5)'
-                  }
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  "&:hover": {
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    borderColor: "rgba(255,255,255,0.5)",
+                  },
                 }}
               >
                 Login
@@ -262,8 +301,8 @@ export function Header() {
           </Box>
         </Toolbar>
       </AppBar>
-      
+
       <MobileDrawer />
     </>
-  )
+  );
 }

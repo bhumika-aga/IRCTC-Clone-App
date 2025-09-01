@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
+import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
-import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -9,39 +9,26 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: [],
       manifest: {
-        name: 'NextGenRail - Railway Booking',
+        name: 'NextGenRail',
         short_name: 'NextGenRail',
-        description: 'Production-grade IRCTC clone for railway ticket booking',
+        description: 'Next Generation Railway Booking Platform',
         theme_color: '#1976d2',
         background_color: '#ffffff',
         display: 'standalone',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
+        icons: []
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/api\.nextgenrail\.com\//,
+            urlPattern: /^https:\/\/api\./,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
-              networkTimeoutSeconds: 10,
-              cacheableResponse: {
-                statuses: [0, 200]
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 // 24 hours
               }
             }
           }
@@ -51,15 +38,20 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': resolve(__dirname, './src')
     }
   },
   server: {
-    port: 3000,
-    host: true,
+    port: 5173,
+    host: '0.0.0.0',
+    headers: {
+      'X-Frame-Options': 'DENY',
+      'X-Content-Type-Options': 'nosniff',
+      'X-XSS-Protection': '1; mode=block'
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080',
         changeOrigin: true,
         secure: false
       }
@@ -71,15 +63,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
+          vendor: ['react', 'react-dom', 'react-router-dom'],
           mui: ['@mui/material', '@mui/icons-material'],
-          router: ['react-router-dom'],
-          forms: ['react-hook-form', '@hookform/resolvers', 'zod']
+          utils: ['axios', 'dayjs', 'react-hook-form']
         }
       }
     }
-  },
-  define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
   }
 })

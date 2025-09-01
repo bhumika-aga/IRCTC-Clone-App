@@ -25,87 +25,87 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
+    
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-
+    
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
-
+    
     @Value("${app.cors.allowed-methods}")
     private String allowedMethods;
-
+    
     @Value("${app.cors.allowed-headers}")
     private String allowedHeaders;
-
+    
     @Value("${app.cors.allow-credentials}")
     private boolean allowCredentials;
-
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Disable CSRF for stateless JWT authentication
-                .csrf(csrf -> csrf.disable())
-
-                // Configure CORS
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // Configure session management to be stateless
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Configure authorization rules
-                .authorizeHttpRequests(authz -> authz
-                        // Public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/kyc/verify").permitAll()
-                        .requestMatchers("/api/trains/search").permitAll()
-                        .requestMatchers("/api/trains/availability").permitAll()
-
-                        // Documentation endpoints
-                        .requestMatchers("/api/swagger-ui/**").permitAll()
-                        .requestMatchers("/api/api-docs/**").permitAll()
-                        .requestMatchers("/swagger-ui.html").permitAll()
-
-                        // Health check endpoints
-                        .requestMatchers("/api/actuator/health").permitAll()
-
-                        // WebSocket endpoints
-                        .requestMatchers("/api/ws/**").permitAll()
-
-                        // All other endpoints require authentication
-                        .anyRequest().authenticated())
-
-                // Add JWT filter
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+            // Disable CSRF for stateless JWT authentication
+            .csrf(csrf -> csrf.disable())
+            
+            // Configure CORS
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            
+            // Configure session management to be stateless
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            
+            // Configure authorization rules
+            .authorizeHttpRequests(authz -> authz
+                                                // Public endpoints
+                                                .requestMatchers("/api/auth/**").permitAll()
+                                                .requestMatchers("/api/kyc/verify").permitAll()
+                                                .requestMatchers("/api/trains/search").permitAll()
+                                                .requestMatchers("/api/trains/availability").permitAll()
+                                                
+                                                // Documentation endpoints
+                                                .requestMatchers("/api/swagger-ui/**").permitAll()
+                                                .requestMatchers("/api/api-docs/**").permitAll()
+                                                .requestMatchers("/swagger-ui.html").permitAll()
+                                                
+                                                // Health check endpoints
+                                                .requestMatchers("/api/actuator/health").permitAll()
+                                                
+                                                // WebSocket endpoints
+                                                .requestMatchers("/api/ws/**").permitAll()
+                                                
+                                                // All other endpoints require authentication
+                                                .anyRequest().authenticated())
+            
+            // Add JWT filter
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        
         return http.build();
     }
-
+    
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
+        
         // Parse allowed origins from configuration
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
         configuration.setAllowedOrigins(origins);
-
+        
         // Parse allowed methods
         List<String> methods = Arrays.asList(allowedMethods.split(","));
         configuration.setAllowedMethods(methods);
-
+        
         // Parse allowed headers
         List<String> headers = Arrays.asList(allowedHeaders.split(","));
         configuration.setAllowedHeaders(headers);
-
+        
         configuration.setAllowCredentials(allowCredentials);
-
+        
         // Apply CORS configuration to all endpoints
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
+        
         return source;
     }
-
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

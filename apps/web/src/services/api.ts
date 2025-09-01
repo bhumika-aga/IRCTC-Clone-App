@@ -38,22 +38,22 @@ api.interceptors.response.use(
     // Handle 401 Unauthorized errors
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
-      
+
       const refreshToken = localStorage.getItem('refreshToken')
-      
+
       if (refreshToken) {
         try {
           // Try to refresh the token
           const response = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {
             refreshToken
           })
-          
+
           const { accessToken, refreshToken: newRefreshToken } = response.data
-          
+
           // Update stored tokens
           localStorage.setItem('accessToken', accessToken)
           localStorage.setItem('refreshToken', newRefreshToken)
-          
+
           // Retry the original request
           originalRequest.headers.Authorization = `Bearer ${accessToken}`
           return api(originalRequest)
@@ -76,7 +76,7 @@ api.interceptors.response.use(
     // Handle other error status codes
     if (error.response) {
       const { status, data } = error.response
-      
+
       switch (status) {
         case 400:
           toast.error(data.message || 'Bad request')

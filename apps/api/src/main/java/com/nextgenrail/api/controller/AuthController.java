@@ -24,12 +24,12 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication", description = "User authentication endpoints")
 @CrossOrigin(origins = "${app.cors.allowed-origins}")
 public class AuthController {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-
+    
     @Autowired
     private UserService userService;
-
+    
     /**
      * Initiate OTP-based login
      * Generates and sends OTP to user's email
@@ -40,22 +40,22 @@ public class AuthController {
         try {
             // Register user if not exists, or get existing user
             userService.registerUser(request.getEmail(),
-                    request.getFirstName(),
-                    request.getLastName());
-
+                request.getFirstName(),
+                request.getLastName());
+            
             // Generate and send OTP
             userService.generateAndSendOtp(request.getEmail());
-
+            
             return ResponseEntity.ok("OTP sent successfully to " + request.getEmail());
-
+            
         } catch (Exception e) {
             logger.error("Error during OTP login request for email: {}, error: {}",
-                    request.getEmail(), e.getMessage());
+                request.getEmail(), e.getMessage());
             return ResponseEntity.badRequest()
-                    .body("Failed to send OTP: " + e.getMessage());
+                       .body("Failed to send OTP: " + e.getMessage());
         }
     }
-
+    
     /**
      * Verify OTP and authenticate user
      * Returns JWT access and refresh tokens
@@ -65,27 +65,27 @@ public class AuthController {
     public ResponseEntity<?> verifyOtp(@Valid @RequestBody OtpRequest request) {
         try {
             var authTokens = userService.verifyOtpAndGenerateTokens(
-                    request.getEmail(),
-                    request.getOtp());
-
+                request.getEmail(),
+                request.getOtp());
+            
             AuthResponse response = new AuthResponse(
-                    authTokens.getAccessToken(),
-                    authTokens.getRefreshToken(),
-                    authTokens.getUser().getId(),
-                    authTokens.getUser().getEmail(),
-                    authTokens.getUser().getFullName(),
-                    authTokens.getUser().isAadhaarVerified());
-
+                authTokens.getAccessToken(),
+                authTokens.getRefreshToken(),
+                authTokens.getUser().getId(),
+                authTokens.getUser().getEmail(),
+                authTokens.getUser().getFullName(),
+                authTokens.getUser().isAadhaarVerified());
+            
             return ResponseEntity.ok(response);
-
+            
         } catch (Exception e) {
             logger.error("Error during OTP verification for email: {}, error: {}",
-                    request.getEmail(), e.getMessage());
+                request.getEmail(), e.getMessage());
             return ResponseEntity.badRequest()
-                    .body("OTP verification failed: " + e.getMessage());
+                       .body("OTP verification failed: " + e.getMessage());
         }
     }
-
+    
     /**
      * Refresh JWT access token
      * Uses refresh token to generate new access token
@@ -95,24 +95,24 @@ public class AuthController {
     public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         try {
             var authTokens = userService.refreshToken(request.getRefreshToken());
-
+            
             AuthResponse response = new AuthResponse(
-                    authTokens.getAccessToken(),
-                    authTokens.getRefreshToken(),
-                    authTokens.getUser().getId(),
-                    authTokens.getUser().getEmail(),
-                    authTokens.getUser().getFullName(),
-                    authTokens.getUser().isAadhaarVerified());
-
+                authTokens.getAccessToken(),
+                authTokens.getRefreshToken(),
+                authTokens.getUser().getId(),
+                authTokens.getUser().getEmail(),
+                authTokens.getUser().getFullName(),
+                authTokens.getUser().isAadhaarVerified());
+            
             return ResponseEntity.ok(response);
-
+            
         } catch (Exception e) {
             logger.error("Error during token refresh: {}", e.getMessage());
             return ResponseEntity.badRequest()
-                    .body("Token refresh failed: " + e.getMessage());
+                       .body("Token refresh failed: " + e.getMessage());
         }
     }
-
+    
     /**
      * Logout user
      * Invalidates refresh token
@@ -130,10 +130,10 @@ public class AuthController {
         } catch (Exception e) {
             logger.error("Error during logout: {}", e.getMessage());
             return ResponseEntity.badRequest()
-                    .body("Logout failed: " + e.getMessage());
+                       .body("Logout failed: " + e.getMessage());
         }
     }
-
+    
     /**
      * Get current user profile
      */
@@ -143,7 +143,7 @@ public class AuthController {
         try {
             if (authentication != null && authentication.getName() != null) {
                 var user = userService.findByEmail(authentication.getName());
-
+                
                 if (user.isPresent()) {
                     return ResponseEntity.ok(user.get());
                 } else {
@@ -155,7 +155,7 @@ public class AuthController {
         } catch (Exception e) {
             logger.error("Error getting user profile: {}", e.getMessage());
             return ResponseEntity.badRequest()
-                    .body("Failed to get profile: " + e.getMessage());
+                       .body("Failed to get profile: " + e.getMessage());
         }
     }
 }

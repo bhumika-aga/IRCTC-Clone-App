@@ -1,5 +1,5 @@
+import { AuthRequest, AuthResponse, OtpRequest, RefreshTokenRequest, User } from '@/types/auth'
 import { apiClient } from './api'
-import { AuthRequest, OtpRequest, AuthResponse, RefreshTokenRequest, User } from '@/types/auth'
 
 /**
  * Authentication service

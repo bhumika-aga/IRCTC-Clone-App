@@ -16,7 +16,7 @@ spring:
   # MongoDB Configuration
   data:
     mongodb:
-      uri: mongodb+srv://bhumika-aga:test@movie.elou1o4.mongodb.net/nextgenrail
+      uri: ${MONGODB_URI:mongodb+srv://bhumika-aga:test@movie.elou1o4.mongodb.net/irctcplus}
       auto-index-creation: true
   
   # Security Configuration
@@ -26,24 +26,6 @@ spring:
         jwt:
           issuer-uri: ${JWT_ISSUER:http://localhost:8080}
   
-  # Mail Configuration (for OTP)
-  mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-  
-  # Cache Configuration
-  cache:
-    type: caffeine
-    caffeine:
-      spec: maximumSize=1000,expireAfterWrite=30m
   
   # Jackson Configuration
   jackson:
@@ -81,12 +63,12 @@ app:
   otp:
     expiration: 300000 # 5 minutes in milliseconds
     length: 6
-    
+  
   # Booking Configuration
   booking:
     cancellation-hours: 2 # Cancel before 2 hours of departure
     waitlist-limit: 200
-    
+  
   # CORS Configuration
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}

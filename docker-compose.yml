@@ -1,99 +1,46 @@
-# NextGenRail Docker Compose Configuration
-# Production-ready setup with MongoDB, API, and Web services
-
-version: '3.8'
+version: "3.8"
 
 services:
-  # MongoDB Database
-  mongodb:
-    image: mongo:7.0
-    container_name: nextgenrail-mongodb
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD:-password123}
-      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-nextgenrail}
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-      - ./infra/mongodb/init-scripts:/docker-entrypoint-initdb.d:ro
-    networks:
-      - nextgenrail-network
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh mongodb://localhost:27017/nextgenrail --quiet
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  # Spring Boot API
-  nextgenrail-api:
+  api:
     build:
       context: ./apps/api
       dockerfile: Dockerfile
-    container_name: nextgenrail-api
-    restart: unless-stopped
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATA_MONGODB_URI: mongodb://${MONGODB_ROOT_USERNAME:-admin}:${MONGODB_ROOT_PASSWORD:-password123}@mongodb:27017/${MONGODB_DATABASE:-nextgenrail}?authSource=admin
-      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production-123456789012345678901234567890}
-      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
-      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-604800000}
-      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
-      MAIL_PORT: ${MAIL_PORT:-587}
-      MAIL_USERNAME: ${MAIL_USERNAME:-}
-      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
-      APP_CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:80}
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - CORS_ALLOWED_ORIGINS=http://localhost:5173
     volumes:
-      - api_logs:/app/logs
+      - ./apps/api:/app
     networks:
-      - nextgenrail-network
-    depends_on:
-      mongodb:
-        condition: service_healthy
+      - irctc-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
 
-  # React Web Application  
-  nextgenrail-web:
+  web:
     build:
       context: ./apps/web
       dockerfile: Dockerfile
-    container_name: nextgenrail-web
-    restart: unless-stopped
-    environment:
-      VITE_API_BASE_URL: ${API_BASE_URL:-http://localhost:8080/api}
-      VITE_WS_URL: ${WS_URL:-ws://localhost:8080/api/ws}
     ports:
-      - "80:80"
+      - "5173:5173"
+    environment:
+      - REACT_APP_API_BASE_URL=http://localhost:8080
+      - REACT_APP_WS_URL=ws://localhost:8080
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
     networks:
-      - nextgenrail-network
+      - irctc-network
     depends_on:
-      nextgenrail-api:
+      api:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
 
 networks:
-  nextgenrail-network:
+  irctc-network:
     driver: bridge
-    name: nextgenrail-network
-
-volumes:
-  mongodb_data:
-    driver: local
-    name: nextgenrail-mongodb-data
-  api_logs:
-    driver: local  
-    name: nextgenrail-api-logs

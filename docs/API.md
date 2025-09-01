@@ -479,7 +479,7 @@ Content-Type: application/json
     "street": "123 Main Street",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "pincode": "400001"
+    "postalCode": "400001"
   }
 }
 ```

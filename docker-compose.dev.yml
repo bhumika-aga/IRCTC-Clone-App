@@ -1,7 +1,7 @@
 # NextGenRail Development Docker Compose
 # Optimized for local development with hot reload and debugging
 
-version: '3.8'
+version: "3.8"
 
 services:
   # MongoDB Database
