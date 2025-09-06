@@ -24,30 +24,30 @@ import java.io.IOException;
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-    
+
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-    
+
     @Autowired
     private UserService userService;
-    
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
+
         String requestTokenHeader = request.getHeader("Authorization");
-        
+
         String username = null;
         String jwtToken = null;
-        
+
         // JWT Token is in the form "Bearer token". Remove Bearer word and get only the
         // Token
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7);
-            
+
             try {
                 username = jwtTokenUtil.getUsernameFromToken(jwtToken);
             } catch (Exception e) {
@@ -56,46 +56,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } else {
             logger.debug("JWT Token does not begin with Bearer String");
         }
-        
+
         // Once we get the token validate it
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            
+
             UserDetails userDetails = userService.loadUserByUsername(username);
-            
+
             // If token is valid configure Spring Security to manually set authentication
             if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
-                
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-                
+                        userDetails, null, userDetails.getAuthorities());
+
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                
+
                 // After setting the Authentication in the context, we specify
                 // that the current user is authenticated. So it passes the Spring Security
                 // Configurations.
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                
+
                 logger.debug("JWT authentication successful for user: {}", username);
             } else {
                 logger.warn("JWT token validation failed for user: {}", username);
             }
         }
-        
+
         filterChain.doFilter(request, response);
     }
-    
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        
+
         // Skip JWT validation for public endpoints
         return path.startsWith("/api/auth/") ||
-                   path.startsWith("/api/kyc/") ||
-                   path.startsWith("/api/trains/search") ||
-                   path.startsWith("/api/swagger-ui") ||
-                   path.startsWith("/api/api-docs") ||
-                   path.startsWith("/api/actuator/health") ||
-                   path.equals("/api/") ||
-                   path.equals("/api");
+                path.startsWith("/api/kyc/") ||
+                path.startsWith("/api/trains/search") ||
+                path.startsWith("/api/swagger-ui") ||
+                path.startsWith("/api/api-docs") ||
+                path.startsWith("/api/actuator/health") ||
+                path.equals("/api/") ||
+                path.equals("/api");
     }
 }

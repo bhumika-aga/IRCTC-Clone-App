@@ -28,24 +28,24 @@ import java.util.Random;
 @Tag(name = "Bookings", description = "Ticket booking and management operations")
 @CrossOrigin(origins = "*")
 public class BookingController {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
-    
+
     @Autowired
     private BookingRepository bookingRepository;
-    
+
     @Autowired
     private UserRepository userRepository;
-    
+
     @Autowired
     private TrainRepository trainRepository;
-    
+
     @PostMapping
     @Operation(summary = "Create a new booking")
     public ResponseEntity<Booking> createBooking(@RequestBody Booking bookingRequest) {
         logger.info("Creating new booking for train {}",
-            bookingRequest.getTrain() != null ? bookingRequest.getTrain().getTrainNumber() : "unknown");
-        
+                bookingRequest.getTrain() != null ? bookingRequest.getTrain().getTrainNumber() : "unknown");
+
         try {
             // Generate PNR number
             String pnr = generatePNR();
@@ -53,29 +53,29 @@ public class BookingController {
             bookingRequest.setStatus(BookingStatus.CONFIRMED);
             bookingRequest.setBookedAt(LocalDateTime.now());
             bookingRequest.setUpdatedAt(LocalDateTime.now());
-            
+
             // Calculate total fare (simplified calculation)
             if (bookingRequest.getTotalFare() == 0.0) {
                 bookingRequest.setTotalFare(calculateFare(bookingRequest));
             }
-            
+
             Booking savedBooking = bookingRepository.save(bookingRequest);
             logger.info("Booking created successfully with PNR: {}", pnr);
-            
+
             return ResponseEntity.status(HttpStatus.CREATED).body(savedBooking);
         } catch (Exception e) {
             logger.error("Error creating booking: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().build();
         }
     }
-    
+
     @GetMapping("/pnr/{pnrNumber}")
     @Operation(summary = "Get booking details by PNR")
     public ResponseEntity<Booking> getBookingByPNR(@PathVariable String pnrNumber) {
         logger.info("Fetching booking for PNR: {}", pnrNumber);
-        
+
         Optional<Booking> booking = bookingRepository.findByPnrNumberIgnoreCase(pnrNumber.toUpperCase());
-        
+
         if (booking.isPresent()) {
             return ResponseEntity.ok(booking.get());
         } else {
@@ -83,12 +83,12 @@ public class BookingController {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
     @GetMapping("/user/{userEmail}")
     @Operation(summary = "Get user bookings by email")
     public ResponseEntity<List<Booking>> getUserBookings(@PathVariable String userEmail) {
         logger.info("Fetching bookings for user: {}", userEmail);
-        
+
         try {
             Optional<User> userOptional = userRepository.findByEmailIgnoreCase(userEmail);
             if (userOptional.isPresent()) {
@@ -103,35 +103,35 @@ public class BookingController {
             return ResponseEntity.badRequest().build();
         }
     }
-    
+
     @PutMapping("/{pnrNumber}/cancel")
     @Operation(summary = "Cancel a booking")
     public ResponseEntity<Booking> cancelBooking(@PathVariable String pnrNumber) {
         logger.info("Cancelling booking with PNR: {}", pnrNumber);
-        
+
         try {
             Optional<Booking> optionalBooking = bookingRepository.findByPnrNumberIgnoreCase(pnrNumber.toUpperCase());
-            
+
             if (optionalBooking.isPresent()) {
                 Booking booking = optionalBooking.get();
-                
+
                 // Check if booking can be cancelled
                 if (booking.getStatus() == BookingStatus.CANCELLED) {
                     return ResponseEntity.badRequest().build();
                 }
-                
+
                 // Check journey date for cancellation policy
                 LocalDate journeyDate = booking.getTravelDate();
                 if (journeyDate.isBefore(LocalDate.now())) {
                     return ResponseEntity.badRequest().build();
                 }
-                
+
                 booking.setStatus(BookingStatus.CANCELLED);
                 booking.setUpdatedAt(LocalDateTime.now());
-                
+
                 Booking cancelledBooking = bookingRepository.save(booking);
                 logger.info("Booking cancelled successfully: {}", pnrNumber);
-                
+
                 return ResponseEntity.ok(cancelledBooking);
             } else {
                 logger.warn("Booking not found for cancellation: {}", pnrNumber);
@@ -142,20 +142,20 @@ public class BookingController {
             return ResponseEntity.badRequest().build();
         }
     }
-    
+
     @GetMapping("/train/{trainNumber}")
     @Operation(summary = "Get bookings for a specific train")
     public ResponseEntity<List<Booking>> getBookingsByTrain(
-        @PathVariable String trainNumber,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate journeyDate) {
-        
+            @PathVariable String trainNumber,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate journeyDate) {
+
         logger.info("Fetching bookings for train {} on {}", trainNumber, journeyDate);
-        
+
         try {
             Optional<Train> trainOptional = trainRepository.findByTrainNumberIgnoreCase(trainNumber);
             if (trainOptional.isPresent()) {
                 List<Booking> bookings = bookingRepository.findByTrainAndTravelDateOrderByBookedAtDesc(
-                    trainOptional.get(), journeyDate);
+                        trainOptional.get(), journeyDate);
                 return ResponseEntity.ok(bookings);
             } else {
                 logger.warn("Train not found: {}", trainNumber);
@@ -166,7 +166,7 @@ public class BookingController {
             return ResponseEntity.badRequest().build();
         }
     }
-    
+
     private String generatePNR() {
         // Generate 10-digit PNR number
         Random random = new Random();
@@ -176,7 +176,7 @@ public class BookingController {
         }
         return pnr.toString();
     }
-    
+
     private Double calculateFare(Booking booking) {
         // Simplified fare calculation
         // In real implementation, this would consider distance, class, quota, etc.

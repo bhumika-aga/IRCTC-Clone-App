@@ -20,32 +20,32 @@ import java.util.Optional;
 @Tag(name = "Trains", description = "Train search and management operations")
 @CrossOrigin(origins = "*")
 public class TrainController {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(TrainController.class);
-    
+
     @Autowired
     private TrainRepository trainRepository;
-    
+
     @GetMapping("/search")
     @Operation(summary = "Search trains between stations")
     public ResponseEntity<List<Train>> searchTrains(
-        @RequestParam String fromStation,
-        @RequestParam String toStation,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate journeyDate) {
-        
+            @RequestParam String fromStation,
+            @RequestParam String toStation,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate journeyDate) {
+
         logger.info("Searching trains from {} to {} on {}", fromStation, toStation, journeyDate);
-        
+
         try {
             List<Train> trains = trainRepository.findTrainsBetweenStations(
-                fromStation.toUpperCase(),
-                toStation.toUpperCase());
-            
+                    fromStation.toUpperCase(),
+                    toStation.toUpperCase());
+
             // Filter by operational days
             String dayOfWeek = journeyDate.getDayOfWeek().name().substring(0, 3);
             trains = trains.stream()
-                         .filter(train -> train.getOperationalDays().contains(dayOfWeek))
-                         .toList();
-            
+                    .filter(train -> train.getOperationalDays().contains(dayOfWeek))
+                    .toList();
+
             logger.info("Found {} trains for the route", trains.size());
             return ResponseEntity.ok(trains);
         } catch (Exception e) {
@@ -53,14 +53,14 @@ public class TrainController {
             return ResponseEntity.badRequest().build();
         }
     }
-    
+
     @GetMapping("/{trainNumber}")
     @Operation(summary = "Get train details by number")
     public ResponseEntity<Train> getTrainDetails(@PathVariable String trainNumber) {
         logger.info("Getting details for train {}", trainNumber);
-        
+
         Optional<Train> train = trainRepository.findByTrainNumberIgnoreCase(trainNumber);
-        
+
         if (train.isPresent()) {
             return ResponseEntity.ok(train.get());
         } else {
@@ -68,12 +68,12 @@ public class TrainController {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
     @GetMapping
     @Operation(summary = "Get all trains")
     public ResponseEntity<List<Train>> getAllTrains() {
         logger.info("Getting all trains");
-        
+
         try {
             List<Train> trains = trainRepository.findAll();
             return ResponseEntity.ok(trains);

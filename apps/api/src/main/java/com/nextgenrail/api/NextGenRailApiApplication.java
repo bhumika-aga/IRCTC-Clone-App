@@ -13,17 +13,15 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
  * Features enabled:
  * - Spring Boot auto-configuration
  * - MongoDB auditing for created/updated timestamps
- * - Caching with Caffeine for performance optimization
  * - Async processing for notifications and background tasks
  * - WebSocket support for real-time updates
  */
 @SpringBootApplication
 @EnableMongoAuditing
-@EnableCaching
 @EnableAsync
 @EnableWebSocket
 public class NextGenRailApiApplication {
-    
+
     public static void main(String[] args) {
         SpringApplication.run(NextGenRailApiApplication.class, args);
     }
